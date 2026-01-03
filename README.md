@@ -1,23 +1,23 @@
 # PixelCell: Image to Excel Artist 🎨📊
 
-این پروژه تصاویر شما را به آثار هنری در اکسل تبدیل می‌کند.
+این پروژه تصاویر شما را به آثار هنری در اکسل تبدیل می‌کند. هر سلول اکسل به عنوان یک پیکسل رنگی عمل می‌کند.
 
-## 👤 سازنده و ایده پرداز
-- **امیرسامان پیرایش‌فر (AmirSaman Pirayeshfar)**
+## 👤 Credits
+- **Designed & Conceptualized by:** AmirSaman Pirayeshfar
 
 ---
 
-## 🚀 راهنمای رفع خطای "File does not exist" و ساخت EXE
+## 🚀 راهنمای ساخت نرم‌افزار اختصاصی (نسخه دارای امضا)
 
-خطایی که دریافت کردید به این دلیل است که فایل کد در آن پوشه پیدا نشده است. مراحل زیر را دقیقاً دنبال کنید:
+برای اینکه نرم‌افزار شما ظاهر حرفه‌ای داشته باشد و نام شما به عنوان طراح در آن ثبت شده باشد، مراحل زیر را دنبال کنید:
 
-### ۱. ساخت مجدد فایل کد
-یک فایل Notepad باز کنید، کد زیر را در آن کپی کنید و با نام `pixel_art_app.py` (مطمئن شوید پسوند آن `.py` است و نه `.txt`) در پوشه دسکتاپ خود ذخیره کنید.
+### ۱. کد نهایی برنامه با امضای اختصاصی (`pixel_art_app.py`)
+کد زیر را کپی کرده و در فایل `pixel_art_app.py` جایگزین کنید:
 
 ```python
 import os
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, ttk
 from PIL import Image
 import openpyxl
 from openpyxl.utils import get_column_letter
@@ -30,9 +30,11 @@ def convert_image(image_path, width):
         height = int(width * aspect_ratio)
         img = img.resize((width, height), Image.Resampling.NEAREST)
         img = img.convert('RGB')
+        
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "Pixel Art"
+        
         for y in range(height):
             for x in range(width):
                 r, g, b = img.getpixel((x, y))
@@ -40,70 +42,103 @@ def convert_image(image_path, width):
                 cell = ws.cell(row=y+1, column=x+1)
                 cell.fill = PatternFill(start_color=hex_color, end_color=hex_color, fill_type='solid')
                 if y == 0:
-                    ws.column_dimensions[get_column_letter(x+1)].width = 2.5
-            ws.row_dimensions[y+1].height = 15
-        output_path = os.path.splitext(image_path)[0] + "_excel_art.xlsx"
+                    ws.column_dimensions[get_column_letter(x+1)].width = 2.3
+            ws.row_dimensions[y+1].height = 14
+            
+        output_path = os.path.splitext(image_path)[0] + "_pixel_art.xlsx"
         wb.save(output_path)
         return True, output_path
     except Exception as e:
         return False, str(e)
 
-class App:
+class PixelCellApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("PixelCell - Image to Excel")
-        self.root.geometry("450x350")
-        self.root.configure(bg="#f3f4f6")
+        self.root.title("PixelCell v1.0 - By AmirSaman Pirayeshfar")
+        self.root.geometry("450x400")
+        self.root.configure(bg="#ffffff")
+        self.root.resizable(False, False)
+
+        # Header Area
+        header_frame = tk.Frame(root, bg="#1e293b", height=80)
+        header_frame.pack(fill="x", side="top")
         
-        tk.Label(root, text="PixelCell Converter", font=("Arial", 18, "bold"), bg="#f3f4f6", fg="#1e40af").pack(pady=20)
-        tk.Label(root, text="Enter Width (Resolution):", bg="#f3f4f6").pack()
-        self.width_entry = tk.Entry(root, justify='center', font=("Arial", 12))
+        tk.Label(header_frame, text="PixelCell", font=("Segoe UI", 24, "bold"), 
+                 bg="#1e293b", fg="#38bdf8").pack(pady=(10, 0))
+        tk.Label(header_frame, text="Image to Spreadsheet Artist", font=("Segoe UI", 10), 
+                 bg="#1e293b", fg="#94a3b8").pack(pady=(0, 10))
+
+        # Main Content
+        content = tk.Frame(root, bg="#ffffff", padx=30, pady=20)
+        content.pack(fill="both", expand=True)
+
+        tk.Label(content, text="Resolution (Target Width):", font=("Segoe UI", 10, "bold"), 
+                 bg="#ffffff", fg="#475569").pack(anchor="w")
+        
+        self.width_entry = ttk.Entry(content, justify='center')
         self.width_entry.insert(0, "60")
-        self.width_entry.pack(pady=10)
+        self.width_entry.pack(fill="x", pady=(5, 20))
+
+        self.btn = tk.Button(content, text="CHOOSE IMAGE & CONVERT", command=self.process, 
+                             bg="#2563eb", fg="white", font=("Segoe UI", 11, "bold"), 
+                             relief="flat", height=2, cursor="hand2")
+        self.btn.pack(fill="x")
+
+        self.status = tk.Label(content, text="Ready to create artwork", font=("Segoe UI", 9, "italic"),
+                               bg="#ffffff", fg="#94a3b8")
+        self.status.pack(pady=10)
+
+        # Footer Area (Copyright/Credit)
+        footer = tk.Frame(root, bg="#f8fafc", height=50, bd=1, relief="sunken")
+        footer.pack(fill="x", side="bottom")
         
-        self.btn = tk.Button(root, text="SELECT IMAGE & START", command=self.process, 
-                             bg="#2563eb", fg="white", font=("Arial", 11, "bold"), padx=20, pady=10, cursor="hand2")
-        self.btn.pack(pady=20)
-        
-        self.status = tk.Label(root, text="Ready to create art!", bg="#f3f4f6", fg="#6b7280")
-        self.status.pack(side="bottom", pady=20)
+        tk.Label(footer, text="Designed & Conceptualized by", font=("Segoe UI", 8), 
+                 bg="#f8fafc", fg="#64748b").pack(pady=(5, 0))
+        tk.Label(footer, text="AmirSaman Pirayeshfar", font=("Segoe UI", 10, "bold"), 
+                 bg="#f8fafc", fg="#1e293b").pack(pady=(0, 5))
 
     def process(self):
         file_path = filedialog.askopenfilename(filetypes=[("Images", "*.jpg *.png *.jpeg *.webp")])
         if not file_path: return
+        
         try:
             w = int(self.width_entry.get())
-            if w > 200: 
-                if not messagebox.askyesno("Warning", "High resolution might be slow. Continue?"): return
+            if w > 200:
+                if not messagebox.askyesno("Warning", "Higher resolution takes longer. Proceed?"): return
         except:
-            messagebox.showerror("Error", "Please enter a valid number.")
+            messagebox.showerror("Error", "Please enter a valid number for width.")
             return
 
-        self.status.config(text="Processing... Please wait...", fg="#2563eb")
+        self.status.config(text="Processing pixels... please wait", fg="#2563eb")
         self.root.update()
+        
         success, msg = convert_image(file_path, w)
         if success:
-            self.status.config(text="Success!", fg="#059669")
-            messagebox.showinfo("Done", f"Excel art saved at:\n{msg}")
+            self.status.config(text="Creation Successful!", fg="#059669")
+            messagebox.showinfo("Success", f"Art saved successfully at:\n{msg}")
         else:
-            messagebox.showerror("Error", f"Failed: {msg}")
             self.status.config(text="Error occurred", fg="#dc2626")
+            messagebox.showerror("Error", f"Failed: {msg}")
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = App(root)
+    # Apply a modern theme if available
+    style = ttk.Style()
+    if 'vista' in style.theme_names():
+        style.theme_use('vista')
+    
+    app = PixelCellApp(root)
     root.mainloop()
 ```
 
-### ۲. دستور نهایی در CMD
-پنجره CMD را در پوشه‌ای که فایل بالا را ذخیره کردید باز کنید و این را تایپ کنید:
+### ۲. دستور نهایی برای ساخت EXE
+فایل را ذخیره کنید و در CMD همان پوشه دستور زیر را اجرا کنید:
 
 ```bash
-pyinstaller --onefile --noconsole --clean pixel_art_app.py
+pyinstaller --onefile --noconsole --clean --name "PixelCell_Artist" pixel_art_app.py
 ```
 
-**نکته حیاتی:** 
-اگر باز هم پیام "file does not exist" داد، در CMD تایپ کنید `dir` و مطمئن شوید فایلی با پسوند `.py` در لیست هست. اگر فایل شما به صورت `pixel_art_app.py.txt` ذخیره شده باشد، کار نمی‌کند. در این صورت آن را به `pixel_art_app.py` تغییر نام (Rename) دهید.
-
-### ۳. محل فایل خروجی
-بعد از اتمام عملیات، پوشه‌ای به نام **dist** ساخته می‌شود. فایل `.exe` شما داخل آن است. آن را کپی کنید و هرجا خواستید استفاده کنید. دیگر نه ترمینالی باز می‌شود و نه برنامه خودکار بسته می‌شود.
+### ویژگی‌های این نسخه:
+- **امضای اختصاصی:** نام شما در یک کادر مجزا در پایین برنامه (Footer) با استایل دسکتاپ قرار گرفته است.
+- **تایتل بار:** در نوار بالای پنجره هم نام شما نمایش داده می‌شود.
+- **رابط کاربری مدرن:** از فریم‌ها و رنگ‌های آبی تیره (Slate) و سفید استفاده شده تا حس یک اپلیکیشن بیزینسی را بدهد.
