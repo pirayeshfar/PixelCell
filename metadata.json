@@ -1,0 +1,5 @@
+{
+  "name": "PixelCell: Image to Excel Artist",
+  "description": "Transform any image into a vibrant spreadsheet artwork where each Excel cell acts as a pixel. Control resolution, analyze with AI, and download your artistic sheets instantly.",
+  "requestFramePermissions": []
+}
